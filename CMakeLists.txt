@@ -3,4 +3,4 @@ project(pomodoro C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(pomodoro src/main.c)
+add_executable(pomodoro src/main.c src/timer/timer.h src/timer/timer.c)
