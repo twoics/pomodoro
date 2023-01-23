@@ -3,6 +3,6 @@
 
 #include "time.h"
 
-int share_elapsed_time(time_t current_time, time_t end_time);
+int percent_passed_time(time_t current_time, time_t start_time, time_t end_time);
 
 #endif //POMODORO_TIMER_H

@@ -1,17 +1,17 @@
 #include "timer.h"
 #include "time.h"
 
+#define PERCENT_IN_SHARE 100
 
-int share_elapsed_time(time_t current_time, time_t end_time) {
-    return 0;
-}
+int percent_passed_time(time_t current_time, time_t start_time, time_t end_time) {
+    double interval = (double) (end_time - start_time);
+    double passed = (double) (current_time - start_time);
 
-/**
- * The number of percentages of one number from another
- * @param from The number from which the percentage is counted
- * @param by The number whose percentage is calculated
- * @return Number of percentages
- */
-int percentage_number(int from, int by) {
-    return 0;
+    if (interval == 0) {
+        return -1;
+    }
+
+    double share_passed = passed / interval;
+
+    return (int) (share_passed * PERCENT_IN_SHARE);
 }
