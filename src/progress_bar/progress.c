@@ -1,9 +1,8 @@
 #include <stdio.h>
-
 #include <malloc.h>
 #include <string.h>
+#include "../exceptions/exceptions.h"
 
-#define FAILURE_CODE (-1)
 #define MAX_PERCENT 100
 #define BORDERS_COUNT 2
 #define LEFT_BOARD_INDEX 0
@@ -13,12 +12,10 @@
 
 int count_filled_cells(int percentage, int bar_len) {
     if (percentage > MAX_PERCENT) {
-        fprintf(stderr, "Percentage can't be > 100\n");
-        return FAILURE_CODE;
+        fatal_exit("Percentage can't be > 100", __FUNCTION__, __LINE__);
     }
     if (bar_len <= 0) {
-        fprintf(stderr, "Bar len can't be < 0");
-        return FAILURE_CODE;
+        fatal_exit("Bar len can't be < 0", __FUNCTION__, __LINE__);
     }
 
     int filled_cells = bar_len * percentage / MAX_PERCENT;
@@ -37,8 +34,7 @@ size_t bar_byte_size(int count_filled, int bar_len) {
 
 void set_bar_cell(char** bar, int max_index, int index, char* cell) {
     if (index < 0 | index > max_index) {
-        perror("Index out of total bar range");
-        return;
+        fatal_exit("Index out of total bar range", __FUNCTION__, __LINE__);
     }
 
     bar[index] = cell;
@@ -46,16 +42,13 @@ void set_bar_cell(char** bar, int max_index, int index, char* cell) {
 
 void fill_cells(char** bar, int bar_len, int start_index, int end_index, char* cell) {
     if (start_index <= LEFT_BOARD_INDEX | end_index <= LEFT_BOARD_INDEX) {
-        fprintf(stderr, "Start or end_index <= left board\n");
-        return;
+        fatal_exit("Start or end_index <= left board", __FUNCTION__, __LINE__);
     }
     if (start_index > end_index) {
-        fprintf(stderr, "Start (%d) > End (%d)\n", start_index, end_index);
-        return;
+        fatal_exit("Start index > End index", __FUNCTION__, __LINE__);
     }
     if (end_index > bar_len) {
-        fprintf(stderr, "Start > End\n");
-        return;
+        fatal_exit("End index > Bar len", __FUNCTION__, __LINE__);
     }
 
     for (int i = start_index; i <= end_index; ++i) {
@@ -65,8 +58,7 @@ void fill_cells(char** bar, int bar_len, int start_index, int end_index, char* c
 
 char** progress_build(int percentage, int bar_len, char* fill, char* empty, char* current) {
     if (fill == NULL | empty == NULL) {
-        perror("Fill or empty can't be NULL");
-        return NULL;
+        fatal_exit("Fill or empty cell can't be NULL", __FUNCTION__, __LINE__);
     }
     if (current == NULL) {
         current = empty;
@@ -93,7 +85,6 @@ char** progress_build(int percentage, int bar_len, char* fill, char* empty, char
         fill_cells(progress_bar, bar_len, start_empty_cell_index, bar_len, empty);
     }
 
-
     set_bar_cell(progress_bar, right_board_index, right_board_index, "]");
 
     return progress_bar;
@@ -106,6 +97,7 @@ void draw_progress(int percentage, int bar_len, char* fill, char* empty, char* c
     for (int i = 0; i < bar_len + BORDERS_COUNT; ++i) {
         printf("%s", bar[i]);
     }
+
     fflush(stdout);
     printf("\r");
     free(bar);
