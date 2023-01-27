@@ -3,4 +3,4 @@ project(pomodoro C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(pomodoro src/main.c src/timer/timer.h src/timer/timer.c src/progress_bar/progress.c src/progress_bar/progress.h src/cli_cleaner/cli_cleaner.h src/cli_cleaner/cli_cleaner.c)
+add_executable(pomodoro src/main.c src/timer/timer.h src/timer/timer.c src/progress_bar/progress.c src/progress_bar/progress.h src/cli_cleaner/cli_cleaner.h src/cli_cleaner/cli_cleaner.c src/exceptions/exceptions.h src/exceptions/exceptions.c)
