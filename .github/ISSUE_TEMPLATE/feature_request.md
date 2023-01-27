@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Describe briefly the functionality you want to see**
+**Functionality**
 Briefly describe the functionality you want to see and why
 
 **Additional context**
