@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
+#include "progress.h"
 #include "../exceptions/exceptions.h"
 
 #define MAX_PERCENT 100
@@ -32,7 +33,7 @@ size_t bar_byte_size(int count_filled, int bar_len) {
     return bar_size;
 }
 
-void set_bar_cell(char** bar, int max_index, int index, char* cell) {
+void set_bar_cell(const char** bar, int max_index, int index, const char* const cell) {
     if (index < 0 | index > max_index) {
         fatal_exit("Index out of total bar range", __FUNCTION__, __LINE__);
     }
@@ -40,7 +41,7 @@ void set_bar_cell(char** bar, int max_index, int index, char* cell) {
     bar[index] = cell;
 }
 
-void fill_cells(char** bar, int bar_len, int start_index, int end_index, char* cell) {
+void fill_cells(const char** bar, int bar_len, int start_index, int end_index, const char* const cell) {
     if (start_index <= LEFT_BOARD_INDEX | end_index <= LEFT_BOARD_INDEX) {
         fatal_exit("Start or end_index <= left board", __FUNCTION__, __LINE__);
     }
@@ -56,45 +57,47 @@ void fill_cells(char** bar, int bar_len, int start_index, int end_index, char* c
     }
 }
 
-char** progress_build(int percentage, int bar_len, char* fill, char* empty, char* current) {
-    if (fill == NULL | empty == NULL) {
+const char** progress_build(int percentage, struct bar_settings settings) {
+    if (settings.fill == NULL | settings.empty == NULL) {
         fatal_exit("Fill or empty cell can't be NULL", __FUNCTION__, __LINE__);
     }
-    if (current == NULL) {
-        current = empty;
+
+    const char* current_cell = settings.current;
+    if (current_cell == NULL) {
+        current_cell = settings.empty;
     }
 
-    int filled_cells = count_filled_cells(percentage, bar_len);
-    size_t bar_size = bar_byte_size(filled_cells, bar_len);
-    char** progress_bar = (char**) malloc(bar_size);
+    int filled_cells = count_filled_cells(percentage, settings.bar_len);
+    size_t bar_size = bar_byte_size(filled_cells, settings.bar_len);
+    const char** progress_bar = (const char**) malloc(bar_size);
 
-    const int right_board_index = bar_len + RIGHT_BORDER_BIAS;
-    set_bar_cell(progress_bar, right_board_index, LEFT_BOARD_INDEX, "[");
+    const int right_board_index = settings.bar_len + RIGHT_BORDER_BIAS;
+    set_bar_cell(progress_bar, right_board_index, LEFT_BOARD_INDEX, settings.left_border);
 
     if (filled_cells != 0) {
-        fill_cells(progress_bar, bar_len, START_BAR_INDEX, filled_cells, fill);
+        fill_cells(progress_bar, settings.bar_len, START_BAR_INDEX, filled_cells, settings.fill);
     }
 
     const int current_cell_index = filled_cells + 1;
-    if (filled_cells != bar_len) {
-        set_bar_cell(progress_bar, right_board_index, current_cell_index, current);
+    if (filled_cells != settings.bar_len) {
+        set_bar_cell(progress_bar, right_board_index, current_cell_index, current_cell);
     }
 
     const int start_empty_cell_index = current_cell_index + 1;
-    if (start_empty_cell_index <= bar_len) {
-        fill_cells(progress_bar, bar_len, start_empty_cell_index, bar_len, empty);
+    if (start_empty_cell_index <= settings.bar_len) {
+        fill_cells(progress_bar, settings.bar_len, start_empty_cell_index, settings.bar_len, settings.empty);
     }
 
-    set_bar_cell(progress_bar, right_board_index, right_board_index, "]");
+    set_bar_cell(progress_bar, right_board_index, right_board_index, settings.right_border);
 
     return progress_bar;
 }
 
 
-void draw_progress(int percentage, int bar_len, char* fill, char* empty, char* current) {
-    char** bar = progress_build(percentage, bar_len, fill, empty, current);
+void draw_progress(int percentage, struct bar_settings settings) {
+    const char** bar = progress_build(percentage, settings);
 
-    for (int i = 0; i < bar_len + BORDERS_COUNT; ++i) {
+    for (int i = 0; i < settings.bar_len + BORDERS_COUNT; ++i) {
         printf("%s", bar[i]);
     }
 
