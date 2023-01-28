@@ -1,6 +1,4 @@
-#include <stdio.h>
 #include <malloc.h>
-#include <string.h>
 #include "progress.h"
 #include "../exceptions/exceptions.h"
 
