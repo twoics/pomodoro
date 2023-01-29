@@ -3,10 +3,7 @@
 #include "../exceptions/exceptions.h"
 
 #define MAX_PERCENT 100
-#define BORDERS_COUNT 2
 #define LEFT_BOARD_INDEX 0
-#define RIGHT_BORDER_BIAS 1
-#define START_BAR_INDEX 1
 #define CURRENT_CELL_LEN 1
 
 int count_filled_cells(int percentage, int bar_len) {
@@ -21,29 +18,39 @@ int count_filled_cells(int percentage, int bar_len) {
     return filled_cells;
 }
 
-size_t bar_byte_size(int count_filled, int bar_len) {
+size_t bar_byte_size(int count_filled, struct bar_settings settings) {
     size_t current_cell_size = sizeof(char*);
     size_t fill_cells_size = count_filled * sizeof(char*);
-    size_t empty_cells_size = (bar_len - count_filled - CURRENT_CELL_LEN) * sizeof(char*);
-    size_t borders_size = BORDERS_COUNT * sizeof(char*);
+    size_t empty_cells_size = (settings.bar_len - count_filled - CURRENT_CELL_LEN) * sizeof(char*);
+
+    size_t borders_size = 0;
+    if (settings.right_border != NULL) {
+        borders_size += sizeof(char*);
+    }
+    if (settings.left_border != NULL) {
+        borders_size += sizeof(char*);
+    }
 
     size_t bar_size = fill_cells_size + current_cell_size + empty_cells_size + borders_size;
     return bar_size;
 }
 
-void set_bar_cell(const char** bar, int max_index, int index, const char* const cell) {
-    if (index < 0 | index > max_index) {
+void set_bar_cell(const char** bar, int index, const char* const cell) {
+    if (index < 0) {
         fatal_exit("Index out of total bar range", __FUNCTION__, __LINE__);
     }
 
     bar[index] = cell;
 }
 
-void fill_cells(const char** bar, int bar_len, int start_index, int end_index, const char* const cell) {
-    if (start_index <= LEFT_BOARD_INDEX | end_index <= LEFT_BOARD_INDEX) {
-        fatal_exit("Start or end_index <= left board", __FUNCTION__, __LINE__);
+void fill_cells(const char** bar, int bar_len, int start_index, int count, const char* const cell) {
+    int end_index = start_index + count - 1;
+
+    if (start_index < 0 | end_index < 0) {
+        fatal_exit("Start or end_index can't be < 0", __FUNCTION__, __LINE__);
     }
     if (start_index > end_index) {
+        printf("%d, %d, %s", start_index, end_index, cell);
         fatal_exit("Start index > End index", __FUNCTION__, __LINE__);
     }
     if (end_index > bar_len) {
@@ -51,7 +58,66 @@ void fill_cells(const char** bar, int bar_len, int start_index, int end_index, c
     }
 
     for (int i = start_index; i <= end_index; ++i) {
-        set_bar_cell(bar, end_index, i, cell);
+        set_bar_cell(bar, i, cell);
+    }
+}
+
+void set_left_boarder(const char** bar, struct bar_settings settings) {
+    if (settings.left_border != NULL) {
+        set_bar_cell(bar, LEFT_BOARD_INDEX, settings.left_border);
+    }
+}
+
+void set_completed_cells(const char** bar, struct bar_settings settings, int count) {
+    int start_index = 0;
+    if (settings.left_border != NULL) {
+        start_index = 1;
+    }
+
+    if (count != 0) {
+        fill_cells(bar, settings.bar_len, start_index, count, settings.fill);
+    }
+}
+
+void set_current_cell(const char** bar, struct bar_settings settings, int count_completed) {
+    int index = count_completed;
+    if (settings.left_border != NULL) {
+        index++;
+    }
+
+    const char* current_cell = settings.current;
+    if (current_cell == NULL) {
+        current_cell = settings.empty;
+    }
+
+    if (count_completed != settings.bar_len) {
+        set_bar_cell(bar, index, current_cell);
+    }
+}
+
+void set_empty_cells(const char** bar, struct bar_settings settings, int count_completed) {
+    int start_index = count_completed + 1;
+    int max_start_bias = 0;
+    if (settings.left_border != NULL) {
+        start_index++;
+        max_start_bias = 1;
+    }
+
+    int count = settings.bar_len - count_completed - 1;
+    int max_start_index = settings.bar_len + max_start_bias;
+    if (start_index < max_start_index) {
+        fill_cells(bar, settings.bar_len, start_index, count, settings.empty);
+    }
+}
+
+void set_right_boarder(const char** bar, struct bar_settings settings) {
+    int index = settings.bar_len;
+    if (settings.left_border != NULL) {
+        index++;
+    }
+
+    if (settings.right_border != NULL) {
+        set_bar_cell(bar, index, settings.right_border);
     }
 }
 
@@ -60,33 +126,15 @@ const char** progress_build(int percentage, struct bar_settings settings) {
         fatal_exit("Fill or empty cell can't be NULL", __FUNCTION__, __LINE__);
     }
 
-    const char* current_cell = settings.current;
-    if (current_cell == NULL) {
-        current_cell = settings.empty;
-    }
-
     int filled_cells = count_filled_cells(percentage, settings.bar_len);
-    size_t bar_size = bar_byte_size(filled_cells, settings.bar_len);
+    size_t bar_size = bar_byte_size(filled_cells, settings);
     const char** progress_bar = (const char**) malloc(bar_size);
 
-    const int right_board_index = settings.bar_len + RIGHT_BORDER_BIAS;
-    set_bar_cell(progress_bar, right_board_index, LEFT_BOARD_INDEX, settings.left_border);
-
-    if (filled_cells != 0) {
-        fill_cells(progress_bar, settings.bar_len, START_BAR_INDEX, filled_cells, settings.fill);
-    }
-
-    const int current_cell_index = filled_cells + 1;
-    if (filled_cells != settings.bar_len) {
-        set_bar_cell(progress_bar, right_board_index, current_cell_index, current_cell);
-    }
-
-    const int start_empty_cell_index = current_cell_index + 1;
-    if (start_empty_cell_index <= settings.bar_len) {
-        fill_cells(progress_bar, settings.bar_len, start_empty_cell_index, settings.bar_len, settings.empty);
-    }
-
-    set_bar_cell(progress_bar, right_board_index, right_board_index, settings.right_border);
+    set_left_boarder(progress_bar, settings);
+    set_completed_cells(progress_bar, settings, filled_cells);
+    set_current_cell(progress_bar, settings, filled_cells);
+    set_empty_cells(progress_bar, settings, filled_cells);
+    set_right_boarder(progress_bar, settings);
 
     return progress_bar;
 }
@@ -94,8 +142,16 @@ const char** progress_build(int percentage, struct bar_settings settings) {
 
 void draw_progress(int percentage, struct bar_settings settings) {
     const char** bar = progress_build(percentage, settings);
+    // TODO REFACTOR THIS
+    int z = 0;
+    if (settings.left_border != NULL) {
+        z++;
+    }
+    if (settings.right_border != NULL) {
+        z++;
+    }
 
-    for (int i = 0; i < settings.bar_len + BORDERS_COUNT; ++i) {
+    for (int i = 0; i < settings.bar_len + z; ++i) {
         printf("%s", bar[i]);
     }
 
