@@ -4,7 +4,7 @@
 #include "../bar/bar.h"
 
 struct progress_bar_settings {
-    struct bar_settings bar_setting;
+    struct bar_settings bar_settings;
 };
 
 void draw_progress(int percentage, struct progress_bar_settings settings);

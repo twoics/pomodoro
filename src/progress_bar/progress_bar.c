@@ -2,9 +2,9 @@
 #include "progress_bar.h"
 
 void draw_progress(int percentage, struct progress_bar_settings settings) {
-    const char** bar = build(percentage, settings.bar_setting);
+    const char** bar = build(percentage, settings.bar_settings);
 
-    struct bar_settings bar_setting = settings.bar_setting;
+    struct bar_settings bar_setting = settings.bar_settings;
 
     int total_bar_len = bar_setting.bar_len;
     if (bar_setting.left_border != NULL) {
