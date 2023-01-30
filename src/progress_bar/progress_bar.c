@@ -1,5 +1,5 @@
 #include <malloc.h>
-#include "progress.h"
+#include "progress_bar.h"
 
 void draw_progress(int percentage, struct progress_bar_settings settings) {
     const char** bar = build(percentage, settings.bar_setting);
