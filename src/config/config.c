@@ -4,16 +4,24 @@
 #include "../../lib/libconfig/lib/libconfig.h"
 #include "../exceptions/exceptions.h"
 
-#define PROGRESS_BAR_LEN_FIELD "progress_bar_len"
-#define PROGRESS_LEFT_BORDER_FIELD "progress_left_border"
-#define PROGRESS_RIGHT_BORDER_FIELD "progress_right_border"
-#define PROGRESS_COMPLETED_CELL_FIELD "progress_completed_cell"
-#define PROGRESS_EMPTY_CELL_FIELD "progress_uncompleted_cell"
-#define PROGRESS_CURRENT_CELL_FIELD "progress_current_cell"
+#define PROGRESS_NAME_LEN_FIELD "progress_bar_len"
+#define PROGRESS_NAME_LEFT_BORDER_FIELD "progress_left_border"
+#define PROGRESS_NAME_RIGHT_BORDER_FIELD "progress_right_border"
+#define PROGRESS_NAME_COMPLETED_FIELD "progress_completed_cell"
+#define PROGRESS_NAME_UNCOMPLETED_FIELD "progress_uncompleted_cell"
+#define PROGRESS_NAME_CURRENT_FIELD "progress_current_cell"
 
 #define FAIL_EXIT (-1)
 
-char* get_string_field(const config_t* config, const char* field) {
+struct bar_config_fields {
+    char* left_border_field;
+    char* right_border_field;
+    char* completed_cell_field;
+    char* uncompleted_cell_field;
+    char* current_cell_field;
+};
+
+char* get_field_string_data(const config_t* config, const char* field) {
     const char* buffer;
     if (!config_lookup_string(config, field, &buffer)) {
         fprintf(stderr, "No found `%s` field in configuration\n", field);
@@ -25,16 +33,16 @@ char* get_string_field(const config_t* config, const char* field) {
     return string_outside_conf_area;
 }
 
-void get_integer_field(const config_t* config, int* result_storage, const char* field) {
+void get_field_integer_data(const config_t* config, int* result_storage, const char* field) {
     if (!config_lookup_int(config, field, result_storage)) {
         fprintf(stderr, "No found `%s` field in configuration\n", field);
         exit_with_code(FAIL_EXIT);
     }
 }
 
-struct bar_settings bar_configure(const config_t* config) {
+struct bar_settings bar_configure(const config_t* config, struct bar_config_fields fields) {
     int bar_len;
-    get_integer_field(config, &bar_len, PROGRESS_BAR_LEN_FIELD);
+    get_field_integer_data(config, &bar_len, PROGRESS_NAME_LEN_FIELD);
 
     const char* left_border;
     const char* right_border;
@@ -42,13 +50,13 @@ struct bar_settings bar_configure(const config_t* config) {
     const char* empty;
     const char* current;
 
-    left_border = get_string_field(config, PROGRESS_LEFT_BORDER_FIELD);
-    right_border = get_string_field(config, PROGRESS_RIGHT_BORDER_FIELD);
-    fill = get_string_field(config, PROGRESS_COMPLETED_CELL_FIELD);
-    empty = get_string_field(config, PROGRESS_EMPTY_CELL_FIELD);
-    current = get_string_field(config, PROGRESS_CURRENT_CELL_FIELD);
+    left_border = get_field_string_data(config, fields.left_border_field);
+    right_border = get_field_string_data(config, fields.right_border_field);
+    fill = get_field_string_data(config, fields.completed_cell_field);
+    empty = get_field_string_data(config, fields.uncompleted_cell_field);
+    current = get_field_string_data(config, fields.current_cell_field);
 
-    // TODO Check by empty string
+    // TODO Check by uncompleted_cell_field string
     struct bar_settings bar_sett = {
             bar_len, left_border, right_border, fill, empty, current
     };
@@ -71,7 +79,15 @@ config_t init_config_file(char* file_path) {
 }
 
 struct progress_bar_settings progress_configure(const config_t* config) {
-    struct bar_settings bar_sett = bar_configure(config);
+    struct bar_config_fields fields = {
+            PROGRESS_NAME_LEFT_BORDER_FIELD,
+            PROGRESS_NAME_RIGHT_BORDER_FIELD,
+            PROGRESS_NAME_COMPLETED_FIELD,
+            PROGRESS_NAME_UNCOMPLETED_FIELD,
+            PROGRESS_NAME_CURRENT_FIELD
+    };
+
+    struct bar_settings bar_sett = bar_configure(config, fields);
     struct progress_bar_settings progress_sett = {
             bar_sett
     };
