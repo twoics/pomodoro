@@ -13,14 +13,15 @@
 
 #define FAIL_EXIT (-1)
 
-char* get_string_field(const config_t* config, const char** result_storage, const char* field) {
-    if (!config_lookup_string(config, field, result_storage)) {
+char* get_string_field(const config_t* config, const char* field) {
+    const char* buffer;
+    if (!config_lookup_string(config, field, &buffer)) {
         fprintf(stderr, "No found `%s` field in configuration\n", field);
         exit_with_code(FAIL_EXIT);
     }
 
-    char* string_outside_conf_area = (char*) malloc(strlen(*result_storage));
-    strcpy(string_outside_conf_area, *result_storage);
+    char* string_outside_conf_area = (char*) malloc(strlen(buffer));
+    strcpy(string_outside_conf_area, buffer);
     return string_outside_conf_area;
 }
 
@@ -41,12 +42,13 @@ struct bar_settings bar_configure(const config_t* config) {
     const char* empty;
     const char* current;
 
-    left_border = get_string_field(config, &left_border, PROGRESS_LEFT_BORDER_FIELD);
-    right_border = get_string_field(config, &right_border, PROGRESS_RIGHT_BORDER_FIELD);
-    fill = get_string_field(config, &fill, PROGRESS_COMPLETED_CELL_FIELD);
-    empty = get_string_field(config, &empty, PROGRESS_EMPTY_CELL_FIELD);
-    current = get_string_field(config, &current, PROGRESS_CURRENT_CELL_FIELD);
+    left_border = get_string_field(config, PROGRESS_LEFT_BORDER_FIELD);
+    right_border = get_string_field(config, PROGRESS_RIGHT_BORDER_FIELD);
+    fill = get_string_field(config, PROGRESS_COMPLETED_CELL_FIELD);
+    empty = get_string_field(config, PROGRESS_EMPTY_CELL_FIELD);
+    current = get_string_field(config, PROGRESS_CURRENT_CELL_FIELD);
 
+    // TODO Check by empty string
     struct bar_settings bar_sett = {
             bar_len, left_border, right_border, fill, empty, current
     };
