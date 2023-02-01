@@ -15,3 +15,7 @@ void fatal_exit(char* message, const char* func_name, int line_number) {
     );
     exit(EXIT_CODE);
 }
+
+void exit_with_code(int code) {
+    exit(code);
+}
