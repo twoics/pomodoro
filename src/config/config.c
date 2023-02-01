@@ -54,15 +54,7 @@ struct bar_settings bar_configure(const config_t* config) {
     return bar_sett;
 }
 
-struct progress_bar_settings progress_configure(const config_t* config) {
-    struct bar_settings bar_sett = bar_configure(config);
-    struct progress_bar_settings progress_sett = {
-            bar_sett
-    };
-    return progress_sett;
-}
-
-struct progress_bar_settings configure_progress_bar(char* file_path) {
+config_t init_config_file(char* file_path) {
     config_t cfg;
     config_init(&cfg);
 
@@ -73,7 +65,22 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
         exit_with_code(FAIL_EXIT);
     }
 
+    return cfg;
+}
+
+struct progress_bar_settings progress_configure(const config_t* config) {
+    struct bar_settings bar_sett = bar_configure(config);
+    struct progress_bar_settings progress_sett = {
+            bar_sett
+    };
+    return progress_sett;
+}
+
+struct progress_bar_settings configure_progress_bar(char* file_path) {
+    config_t cfg = init_config_file(file_path);
+
     struct progress_bar_settings progress_sett = progress_configure(&cfg);
+
     config_destroy(&cfg);
     return progress_sett;
 }
