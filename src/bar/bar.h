@@ -1,5 +1,5 @@
-#ifndef POMODORO_PROGRESS_H
-#define POMODORO_PROGRESS_H
+#ifndef POMODORO_BAR_H
+#define POMODORO_BAR_H
 
 struct bar_settings {
     const int bar_len;
@@ -10,6 +10,5 @@ struct bar_settings {
     const char* const current;
 };
 
-void draw_progress(int percentage, struct bar_settings settings);
-
-#endif //POMODORO_PROGRESS_H
+const char** build(int percentage_completed, struct bar_settings settings);
+#endif //POMODORO_BAR_H
