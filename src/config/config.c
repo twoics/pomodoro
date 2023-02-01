@@ -75,9 +75,11 @@ config_t init_config_file(char* file_path) {
     return cfg;
 }
 
-struct progress_bar_settings progress_configure(const config_t* config) {
+struct progress_bar_settings configure_progress_bar(char* file_path) {
+    config_t cfg = init_config_file(file_path);
+
     int bar_len;
-    get_field_integer_data(config, &bar_len, PROGRESS_NAME_LEN_FIELD);
+    get_field_integer_data(&cfg, &bar_len, PROGRESS_NAME_LEN_FIELD);
 
     struct bar_config_fields fields = {
             PROGRESS_NAME_LEFT_BORDER_FIELD,
@@ -87,18 +89,10 @@ struct progress_bar_settings progress_configure(const config_t* config) {
             PROGRESS_NAME_CURRENT_FIELD
     };
 
-    struct bar_settings bar_sett = bar_configure(config, fields, bar_len);
+    struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
     struct progress_bar_settings progress_sett = {
             bar_sett
     };
-    return progress_sett;
-}
-
-struct progress_bar_settings configure_progress_bar(char* file_path) {
-    config_t cfg = init_config_file(file_path);
-
-    struct progress_bar_settings progress_sett = progress_configure(&cfg);
-
     config_destroy(&cfg);
     return progress_sett;
 }
