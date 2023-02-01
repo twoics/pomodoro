@@ -40,10 +40,7 @@ void get_field_integer_data(const config_t* config, int* result_storage, const c
     }
 }
 
-struct bar_settings bar_configure(const config_t* config, struct bar_config_fields fields) {
-    int bar_len;
-    get_field_integer_data(config, &bar_len, PROGRESS_NAME_LEN_FIELD);
-
+struct bar_settings bar_configure(const config_t* config, struct bar_config_fields fields, int bar_len) {
     const char* left_border;
     const char* right_border;
     const char* fill;
@@ -79,6 +76,9 @@ config_t init_config_file(char* file_path) {
 }
 
 struct progress_bar_settings progress_configure(const config_t* config) {
+    int bar_len;
+    get_field_integer_data(config, &bar_len, PROGRESS_NAME_LEN_FIELD);
+
     struct bar_config_fields fields = {
             PROGRESS_NAME_LEFT_BORDER_FIELD,
             PROGRESS_NAME_RIGHT_BORDER_FIELD,
@@ -87,7 +87,7 @@ struct progress_bar_settings progress_configure(const config_t* config) {
             PROGRESS_NAME_CURRENT_FIELD
     };
 
-    struct bar_settings bar_sett = bar_configure(config, fields);
+    struct bar_settings bar_sett = bar_configure(config, fields, bar_len);
     struct progress_bar_settings progress_sett = {
             bar_sett
     };
