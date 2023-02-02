@@ -11,6 +11,12 @@
 #define PROGRESS_NAME_UNCOMPLETED_FIELD "progress_uncompleted_cell"
 #define PROGRESS_NAME_CURRENT_FIELD "progress_current_cell"
 
+#define SESSION_NAME_LEFT_BORDER_FIELD "session_left_border"
+#define SESSION_NAME_RIGHT_BORDER_FIELD "session_right_border"
+#define SESSION_NAME_COMPLETED_FIELD "session_completed_cell"
+#define SESSION_NAME_UNCOMPLETED_FIELD "session_uncompleted_cell"
+#define SESSION_NAME_CURRENT_FIELD "session_current_cell"
+
 #define FAIL_EXIT (-1)
 
 struct bar_config_fields {
@@ -33,6 +39,7 @@ char* get_field_string_data(const config_t* config, const char* field) {
     return string_outside_conf_area;
 }
 
+// TODO Delete result_storage
 void get_field_integer_data(const config_t* config, int* result_storage, const char* field) {
     if (!config_lookup_int(config, field, result_storage)) {
         fprintf(stderr, "No found `%s` field in configuration\n", field);
@@ -40,6 +47,7 @@ void get_field_integer_data(const config_t* config, int* result_storage, const c
     }
 }
 
+// TODO Change empty strings to NULL
 struct bar_settings bar_configure(const config_t* config, struct bar_config_fields fields, int bar_len) {
     const char* left_border;
     const char* right_border;
@@ -53,7 +61,7 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
     empty = get_field_string_data(config, fields.uncompleted_cell_field);
     current = get_field_string_data(config, fields.current_cell_field);
 
-    // TODO Check by uncompleted_cell_field string
+    // TODO Check fill/empty config are not empty
     struct bar_settings bar_sett = {
             bar_len, left_border, right_border, fill, empty, current
     };
@@ -80,6 +88,11 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
 
     int bar_len;
     get_field_integer_data(&cfg, &bar_len, PROGRESS_NAME_LEN_FIELD);
+    if (bar_len <= 0) {
+        config_destroy(&cfg);
+        fprintf(stderr, "Bar len can't be less or equal than zero\n");
+        exit_with_code(FAIL_EXIT);
+    }
 
     struct bar_config_fields fields = {
             PROGRESS_NAME_LEFT_BORDER_FIELD,
@@ -95,4 +108,27 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
     };
     config_destroy(&cfg);
     return progress_sett;
+}
+
+struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
+    if (bar_len < 0) {
+        fprintf(stderr, "Bar len can't be less or equal than zero\n");
+        exit_with_code(FAIL_EXIT);
+    }
+
+    config_t cfg = init_config_file(file_path);
+    struct bar_config_fields fields = {
+            SESSION_NAME_LEFT_BORDER_FIELD,
+            SESSION_NAME_RIGHT_BORDER_FIELD,
+            SESSION_NAME_COMPLETED_FIELD,
+            SESSION_NAME_UNCOMPLETED_FIELD,
+            SESSION_NAME_CURRENT_FIELD
+    };
+
+    struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
+    struct session_bar_setting session_sett = {
+            bar_sett
+    };
+    config_destroy(&cfg);
+    return session_sett;
 }

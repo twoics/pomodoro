@@ -6,4 +6,6 @@
 
 struct progress_bar_settings configure_progress_bar(char* config_path);
 
+struct session_bar_setting configure_session_bar(char* file_path, int bar_len);
+
 #endif //POMODORO_CONFIG_H
