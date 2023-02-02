@@ -39,12 +39,13 @@ char* get_field_string_data(const config_t* config, const char* field) {
     return string_outside_conf_area;
 }
 
-// TODO Delete result_storage
-void get_field_integer_data(const config_t* config, int* result_storage, const char* field) {
-    if (!config_lookup_int(config, field, result_storage)) {
+int get_field_integer_data(const config_t* config, const char* field) {
+    int result_storage;
+    if (!config_lookup_int(config, field, &result_storage)) {
         fprintf(stderr, "No found `%s` field in configuration\n", field);
         exit_with_code(FAIL_EXIT);
     }
+    return result_storage;
 }
 
 // TODO Change empty strings to NULL
@@ -86,8 +87,7 @@ config_t init_config_file(char* file_path) {
 struct progress_bar_settings configure_progress_bar(char* file_path) {
     config_t cfg = init_config_file(file_path);
 
-    int bar_len;
-    get_field_integer_data(&cfg, &bar_len, PROGRESS_NAME_LEN_FIELD);
+    int bar_len = get_field_integer_data(&cfg, PROGRESS_NAME_LEN_FIELD);
     if (bar_len <= 0) {
         config_destroy(&cfg);
         fprintf(stderr, "Bar len can't be less or equal than zero\n");
