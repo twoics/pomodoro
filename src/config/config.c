@@ -17,7 +17,10 @@
 #define SESSION_NAME_UNCOMPLETED_FIELD "session_uncompleted_cell"
 #define SESSION_NAME_CURRENT_FIELD "session_current_cell"
 
+#define EMPTY_STRING ""
 #define FAIL_EXIT (-1)
+#define BAR_ADDITIONAL_PARAMETERS 3
+#define STRING_EQUALS 0
 
 struct bar_config_fields {
     char* left_border_field;
@@ -48,13 +51,12 @@ int get_field_integer_data(const config_t* config, const char* field) {
     return result_storage;
 }
 
-// TODO Change empty strings to NULL
 struct bar_settings bar_configure(const config_t* config, struct bar_config_fields fields, int bar_len) {
     const char* left_border;
     const char* right_border;
+    const char* current;
     const char* fill;
     const char* empty;
-    const char* current;
 
     left_border = get_field_string_data(config, fields.left_border_field);
     right_border = get_field_string_data(config, fields.right_border_field);
@@ -62,7 +64,22 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
     empty = get_field_string_data(config, fields.uncompleted_cell_field);
     current = get_field_string_data(config, fields.current_cell_field);
 
-    // TODO Check fill/empty config are not empty
+    if (strcmp(empty, EMPTY_STRING) | strcmp(fill, EMPTY_STRING)) {
+        fprintf(stderr, "FILL or EMPTY cell can't be empty\n");
+        exit_with_code(FAIL_EXIT);
+    }
+    const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {
+            &left_border,
+            &right_border,
+            &current
+    };
+
+    for (int i = 0; i < BAR_ADDITIONAL_PARAMETERS; ++i) {
+        if (strcmp(*additional_parameters[i], EMPTY_STRING) == STRING_EQUALS) {
+            *additional_parameters[i] = NULL;
+        }
+    }
+
     struct bar_settings bar_sett = {
             bar_len, left_border, right_border, fill, empty, current
     };
