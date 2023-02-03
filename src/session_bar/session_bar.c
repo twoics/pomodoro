@@ -1,7 +1,13 @@
 #include <malloc.h>
 #include "session_bar.h"
 
-void draw_session_bar(int percentage, struct session_bar_setting settings) {
+#define PERCENT_IN_ONE_SHARE 100
+
+void draw_session_bar(int passed_sessions, struct session_bar_setting settings) {
+    int percentage;
+    double share_passed_sessions = (double) passed_sessions / (double) settings.bar_settings.bar_len;
+    percentage = (int) (share_passed_sessions * PERCENT_IN_ONE_SHARE);
+
     const char** bar = build(percentage, settings.bar_settings);
     struct bar_settings bar_setting = settings.bar_settings;
 
