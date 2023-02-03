@@ -4,18 +4,18 @@
 #include "../../lib/libconfig/lib/libconfig.h"
 #include "../exceptions/exceptions.h"
 
-#define PROGRESS_NAME_LEN_FIELD "progress_bar_len"
-#define PROGRESS_NAME_LEFT_BORDER_FIELD "progress_left_border"
-#define PROGRESS_NAME_RIGHT_BORDER_FIELD "progress_right_border"
-#define PROGRESS_NAME_COMPLETED_FIELD "progress_completed_cell"
-#define PROGRESS_NAME_UNCOMPLETED_FIELD "progress_uncompleted_cell"
-#define PROGRESS_NAME_CURRENT_FIELD "progress_current_cell"
+#define PROGRESS_LEN_FIELD "progress_bar_len"
+#define PROGRESS_LEFT_BORDER_FIELD "progress_left_border"
+#define PROGRESS_RIGHT_BORDER_FIELD "progress_right_border"
+#define PROGRESS_COMPLETED_FIELD "progress_completed_cell"
+#define PROGRESS_UNCOMPLETED_FIELD "progress_uncompleted_cell"
+#define PROGRESS_CURRENT_FIELD "progress_current_cell"
 
-#define SESSION_NAME_LEFT_BORDER_FIELD "session_left_border"
-#define SESSION_NAME_RIGHT_BORDER_FIELD "session_right_border"
-#define SESSION_NAME_COMPLETED_FIELD "session_completed_cell"
-#define SESSION_NAME_UNCOMPLETED_FIELD "session_uncompleted_cell"
-#define SESSION_NAME_CURRENT_FIELD "session_current_cell"
+#define SESSION_LEFT_BORDER_FIELD "session_left_border"
+#define SESSION_RIGHT_BORDER_FIELD "session_right_border"
+#define SESSION_COMPLETED_FIELD "session_completed_cell"
+#define SESSION_UNCOMPLETED_FIELD "session_uncompleted_cell"
+#define SESSION_CURRENT_FIELD "session_current_cell"
 
 #define EMPTY_STRING ""
 #define FAIL_EXIT (-1)
@@ -64,10 +64,12 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
     empty = get_field_string_data(config, fields.uncompleted_cell_field);
     current = get_field_string_data(config, fields.current_cell_field);
 
-    if (strcmp(empty, EMPTY_STRING) | strcmp(fill, EMPTY_STRING)) {
+    if ((strcmp(empty, EMPTY_STRING) == STRING_EQUALS)
+        | (strcmp(fill, EMPTY_STRING) == STRING_EQUALS)) {
         fprintf(stderr, "FILL or EMPTY cell can't be empty\n");
         exit_with_code(FAIL_EXIT);
     }
+
     const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {
             &left_border,
             &right_border,
@@ -104,7 +106,7 @@ config_t init_config_file(char* file_path) {
 struct progress_bar_settings configure_progress_bar(char* file_path) {
     config_t cfg = init_config_file(file_path);
 
-    int bar_len = get_field_integer_data(&cfg, PROGRESS_NAME_LEN_FIELD);
+    int bar_len = get_field_integer_data(&cfg, PROGRESS_LEN_FIELD);
     if (bar_len <= 0) {
         config_destroy(&cfg);
         fprintf(stderr, "Bar len can't be less or equal than zero\n");
@@ -112,11 +114,11 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
     }
 
     struct bar_config_fields fields = {
-            PROGRESS_NAME_LEFT_BORDER_FIELD,
-            PROGRESS_NAME_RIGHT_BORDER_FIELD,
-            PROGRESS_NAME_COMPLETED_FIELD,
-            PROGRESS_NAME_UNCOMPLETED_FIELD,
-            PROGRESS_NAME_CURRENT_FIELD
+            PROGRESS_LEFT_BORDER_FIELD,
+            PROGRESS_RIGHT_BORDER_FIELD,
+            PROGRESS_COMPLETED_FIELD,
+            PROGRESS_UNCOMPLETED_FIELD,
+            PROGRESS_CURRENT_FIELD
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
@@ -135,11 +137,11 @@ struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
 
     config_t cfg = init_config_file(file_path);
     struct bar_config_fields fields = {
-            SESSION_NAME_LEFT_BORDER_FIELD,
-            SESSION_NAME_RIGHT_BORDER_FIELD,
-            SESSION_NAME_COMPLETED_FIELD,
-            SESSION_NAME_UNCOMPLETED_FIELD,
-            SESSION_NAME_CURRENT_FIELD
+            SESSION_LEFT_BORDER_FIELD,
+            SESSION_RIGHT_BORDER_FIELD,
+            SESSION_COMPLETED_FIELD,
+            SESSION_UNCOMPLETED_FIELD,
+            SESSION_CURRENT_FIELD
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
