@@ -7,6 +7,6 @@ struct session_bar_setting {
     struct bar_settings bar_settings;
 };
 
-void draw_session_bar(int percentage, struct session_bar_setting settings);
+void draw_session_bar(int passed_sessions, struct session_bar_setting settings);
 
 #endif //POMODORO_SESSION_BAR_H

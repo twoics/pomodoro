@@ -14,7 +14,7 @@ void draw_progress(int percentage, struct progress_bar_settings settings) {
         total_bar_len++;
     }
 
-    for (int i = 0; i < bar_setting.bar_len + total_bar_len; ++i) {
+    for (int i = 0; i < total_bar_len; ++i) {
         printf("%s", bar[i]);
     }
 

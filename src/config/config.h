@@ -4,12 +4,8 @@
 #include "../progress_bar/progress_bar.h"
 #include "../session_bar/session_bar.h"
 
-struct configuration {
-    struct progress_bar_settings progress_settings;
-    struct session_bar_setting session_settings;
+struct progress_bar_settings configure_progress_bar(char* config_path);
 
-};
-
-struct configuration configure(char* config_path);
+struct session_bar_setting configure_session_bar(char* file_path, int bar_len);
 
 #endif //POMODORO_CONFIG_H
