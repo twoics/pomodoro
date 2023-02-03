@@ -70,11 +70,7 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
         exit_with_code(FAIL_EXIT);
     }
 
-    const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {
-            &left_border,
-            &right_border,
-            &current
-    };
+    const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {&left_border, &right_border, &current};
 
     for (int i = 0; i < BAR_ADDITIONAL_PARAMETERS; ++i) {
         if (strcmp(*additional_parameters[i], EMPTY_STRING) == STRING_EQUALS) {
@@ -125,6 +121,7 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
     struct progress_bar_settings progress_sett = {
             bar_sett
     };
+
     config_destroy(&cfg);
     return progress_sett;
 }
@@ -148,6 +145,7 @@ struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
     struct session_bar_setting session_sett = {
             bar_sett
     };
+
     config_destroy(&cfg);
     return session_sett;
 }
