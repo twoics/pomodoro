@@ -10,16 +10,18 @@
 #define PROGRESS_COMPLETED_FIELD "progress_completed_cell"
 #define PROGRESS_UNCOMPLETED_FIELD "progress_uncompleted_cell"
 #define PROGRESS_CURRENT_FIELD "progress_current_cell"
+#define MESSAGE_BEFORE_PROGRESS_BAR "message_before_progress_bar"
 
 #define SESSION_LEFT_BORDER_FIELD "session_left_border"
 #define SESSION_RIGHT_BORDER_FIELD "session_right_border"
 #define SESSION_COMPLETED_FIELD "session_completed_cell"
 #define SESSION_UNCOMPLETED_FIELD "session_uncompleted_cell"
 #define SESSION_CURRENT_FIELD "session_current_cell"
+#define MESSAGE_BEFORE_SESSION_BAR "message_before_session_bar"
 
 #define EMPTY_STRING ""
 #define FAIL_EXIT (-1)
-#define BAR_ADDITIONAL_PARAMETERS 3
+#define BAR_ADDITIONAL_PARAMETERS 4
 #define STRING_EQUALS 0
 
 struct bar_config_fields {
@@ -28,6 +30,7 @@ struct bar_config_fields {
     char* completed_cell_field;
     char* uncompleted_cell_field;
     char* current_cell_field;
+    char* message_field;
 };
 
 char* get_field_string_data(const config_t* config, const char* field) {
@@ -57,12 +60,14 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
     const char* current;
     const char* fill;
     const char* empty;
+    const char* message_before_bar;
 
     left_border = get_field_string_data(config, fields.left_border_field);
     right_border = get_field_string_data(config, fields.right_border_field);
     fill = get_field_string_data(config, fields.completed_cell_field);
     empty = get_field_string_data(config, fields.uncompleted_cell_field);
     current = get_field_string_data(config, fields.current_cell_field);
+    message_before_bar = get_field_string_data(config, fields.message_field);
 
     if ((strcmp(empty, EMPTY_STRING) == STRING_EQUALS)
         | (strcmp(fill, EMPTY_STRING) == STRING_EQUALS)) {
@@ -70,7 +75,8 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
         exit_with_code(FAIL_EXIT);
     }
 
-    const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {&left_border, &right_border, &current};
+    const char** additional_parameters[BAR_ADDITIONAL_PARAMETERS] = {
+            &left_border, &right_border, &current, &message_before_bar};
 
     for (int i = 0; i < BAR_ADDITIONAL_PARAMETERS; ++i) {
         if (strcmp(*additional_parameters[i], EMPTY_STRING) == STRING_EQUALS) {
@@ -79,7 +85,7 @@ struct bar_settings bar_configure(const config_t* config, struct bar_config_fiel
     }
 
     struct bar_settings bar_sett = {
-            bar_len, left_border, right_border, fill, empty, current
+            bar_len, left_border, right_border, fill, empty, current, message_before_bar
     };
 
     return bar_sett;
@@ -114,7 +120,8 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
             PROGRESS_RIGHT_BORDER_FIELD,
             PROGRESS_COMPLETED_FIELD,
             PROGRESS_UNCOMPLETED_FIELD,
-            PROGRESS_CURRENT_FIELD
+            PROGRESS_CURRENT_FIELD,
+            MESSAGE_BEFORE_PROGRESS_BAR,
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
@@ -138,7 +145,8 @@ struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
             SESSION_RIGHT_BORDER_FIELD,
             SESSION_COMPLETED_FIELD,
             SESSION_UNCOMPLETED_FIELD,
-            SESSION_CURRENT_FIELD
+            SESSION_CURRENT_FIELD,
+            MESSAGE_BEFORE_SESSION_BAR,
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);

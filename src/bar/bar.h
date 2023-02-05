@@ -8,7 +8,9 @@ struct bar_settings {
     const char* const fill;
     const char* const empty;
     const char* const current;
+    const char* const message_before_bar;
 };
 
 const char** build(int percentage_completed, struct bar_settings settings);
+
 #endif //POMODORO_BAR_H
