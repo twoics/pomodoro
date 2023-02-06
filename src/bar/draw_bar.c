@@ -2,9 +2,10 @@
 #include <malloc.h>
 #include "draw_bar.h"
 
-void draw_progress(int percentage, struct bar_settings settings) {
-    const char** bar = build(percentage, settings);
+#define PERCENT_IN_ONE_SHARE 100
 
+void draw_bar(const char** bar, struct bar_settings settings)
+{
     int total_bar_len = settings.bar_len;
     if (settings.left_border != NULL) {
         total_bar_len++;
@@ -22,7 +23,28 @@ void draw_progress(int percentage, struct bar_settings settings) {
         printf("%s", bar[i]);
     }
 
+}
+
+void draw_progress(int percentage, struct bar_settings settings) {
+    const char** bar = build(percentage, settings);
+
+    draw_bar(bar, settings);
+
+    printf(" %d%%", percentage);
     fflush(stdout);
+
     printf("\r");
     free(bar);
+}
+
+
+void draw_sessions(int completed_cells, struct bar_settings settings) {
+    int percentage;
+    double share_passed_sessions = (double) completed_cells / (double) settings.bar_len;
+    percentage = (int) (share_passed_sessions * PERCENT_IN_ONE_SHARE);
+
+    const char** bar = build(percentage, settings);
+    draw_bar(bar, settings);
+
+    printf("\n");
 }

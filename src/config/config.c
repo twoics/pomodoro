@@ -105,7 +105,7 @@ config_t init_config_file(char* file_path) {
     return cfg;
 }
 
-struct progress_bar_settings configure_progress_bar(char* file_path) {
+struct bar_settings configure_progress_bar(char* file_path) {
     config_t cfg = init_config_file(file_path);
 
     int bar_len = get_field_integer_data(&cfg, PROGRESS_LEN_FIELD);
@@ -125,15 +125,12 @@ struct progress_bar_settings configure_progress_bar(char* file_path) {
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
-    struct progress_bar_settings progress_sett = {
-            bar_sett
-    };
 
     config_destroy(&cfg);
-    return progress_sett;
+    return bar_sett;
 }
 
-struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
+struct bar_settings configure_session_bar(char* file_path, int bar_len) {
     if (bar_len < 0) {
         fprintf(stderr, "Bar len can't be less or equal than zero\n");
         exit_with_code(FAIL_EXIT);
@@ -150,10 +147,7 @@ struct session_bar_setting configure_session_bar(char* file_path, int bar_len) {
     };
 
     struct bar_settings bar_sett = bar_configure(&cfg, fields, bar_len);
-    struct session_bar_setting session_sett = {
-            bar_sett
-    };
 
     config_destroy(&cfg);
-    return session_sett;
+    return bar_sett;
 }
