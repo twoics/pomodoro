@@ -25,7 +25,7 @@ void draw_bar(const char** bar, struct bar_settings settings)
 
 }
 
-void draw_progress(int percentage, struct bar_settings settings) {
+void draw_progress_bar(int percentage, struct bar_settings settings) {
     const char** bar = build(percentage, settings);
 
     draw_bar(bar, settings);
@@ -38,7 +38,7 @@ void draw_progress(int percentage, struct bar_settings settings) {
 }
 
 
-void draw_sessions(int completed_cells, struct bar_settings settings) {
+void draw_sessions_bar(int completed_cells, struct bar_settings settings) {
     int percentage;
     double share_passed_sessions = (double) completed_cells / (double) settings.bar_len;
     percentage = (int) (share_passed_sessions * PERCENT_IN_ONE_SHARE);

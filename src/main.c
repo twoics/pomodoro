@@ -19,11 +19,11 @@ int main() {
         time_t end_session_time = start_session_time + SESSION_DURATION_SECONDS;
         percentage = 0;
 
-        draw_sessions(completed_cells, session_sett);
+        draw_sessions_bar(completed_cells, session_sett);
 
         while (percentage < 100) {
             percentage = percent_passed_time(time(NULL), start_session_time, end_session_time);
-            draw_progress(percentage, progress_sett);
+            draw_progress_bar(percentage, progress_sett);
             sleep(1);
         }
 
