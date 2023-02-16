@@ -12,12 +12,10 @@
 int count_filled_cells(int percentage, int bar_len) {
     if (percentage > MAX_PERCENT) {
         return FAIL_STATUS;
-//        fatal_exit("Percentage can't be > 100", __FUNCTION__, __LINE__);
     }
 
     if (bar_len <= 0) {
         return FAIL_STATUS;
-//        fatal_exit("Bar len can't be < 0", __FUNCTION__, __LINE__);
     }
 
     int filled_cells = bar_len * percentage / MAX_PERCENT;
@@ -133,27 +131,52 @@ void set_right_boarder(const char** bar, struct bar_settings settings) {
 }
 
 const char** build(int completed_percentage, struct bar_settings settings) {
-    if (settings.fill == NULL | settings.empty == NULL) {
+    if (completed_percentage < 0) {
+        errno=EINVAL;
         return NULL;
-//        fatal_exit("Fill or empty cell can't be NULL", __FUNCTION__, __LINE__);
+    }
+
+    if (settings.fill == NULL | settings.empty == NULL) {
+        errno=EINVAL;
+        return NULL;
     }
 
     int filled_cells = count_filled_cells(completed_percentage, settings.bar_len);
 
     if (filled_cells == FAIL_STATUS) {
+        errno = EINVAL;
         return NULL;
     }
 
     size_t bar_size = bar_byte_size(filled_cells, settings);
     const char** progress_bar = (const char**) malloc(bar_size);
     if (progress_bar == NULL) {
+        errno = ENOEXEC;
         return NULL;
     }
 
+    int build_status = SUCCESS_STATUS;
+
     set_left_boarder(progress_bar, settings);
-    set_completed_cells(progress_bar, settings, filled_cells);
-    set_current_cell(progress_bar, settings, filled_cells);
-    set_empty_cells(progress_bar, settings, filled_cells);
+
+    build_status = set_completed_cells(progress_bar, settings, filled_cells);
+    if (build_status == FAIL_STATUS) {
+        errno = ENOEXEC;
+        return NULL;
+    }
+
+    build_status = set_current_cell(progress_bar, settings, filled_cells);
+    if (build_status == FAIL_STATUS) {
+        errno = ENOEXEC;
+        return NULL;
+    }
+
+    build_status = set_empty_cells(progress_bar, settings, filled_cells);
+    if (build_status == FAIL_STATUS) {
+        errno = ENOEXEC;
+        return NULL;
+    }
+
     set_right_boarder(progress_bar, settings);
 
     return progress_bar;
