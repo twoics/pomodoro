@@ -41,17 +41,6 @@ size_t bar_byte_size(int count_filled, struct bar_settings settings) {
     return bar_size;
 }
 
-int set_bar_cell(const char** bar, int index, const char* const cell) {
-    if (index < 0) {
-        return FAIL_STATUS;
-//        fatal_exit("Index out of total bar range", __FUNCTION__, __LINE__);
-    }
-
-    bar[index] = cell;
-
-    return SUCCESS_STATUS;
-}
-
 int fill_cells(const char** bar, int bar_len, int start_index, int count, const char* const cell) {
     int end_index = start_index + count - 1;
 
@@ -63,22 +52,16 @@ int fill_cells(const char** bar, int bar_len, int start_index, int count, const 
     }
 
     for (int i = start_index; i <= end_index; ++i) {
-        int status = set_bar_cell(bar, i, cell);
-
-        if (status == FAIL_STATUS) {
-            return FAIL_STATUS;
-        }
+        bar[i] = cell;
     }
 
     return SUCCESS_STATUS;
 }
 
-int set_left_boarder(const char** bar, struct bar_settings settings) {
-    int status = SUCCESS_STATUS;
+void set_left_boarder(const char** bar, struct bar_settings settings) {
     if (settings.left_border != NULL) {
-        status = set_bar_cell(bar, LEFT_BOARD_INDEX, settings.left_border);
+        bar[LEFT_BOARD_INDEX] = settings.left_border;
     }
-    return status;
 }
 
 int set_completed_cells(const char** bar, struct bar_settings settings, int count) {
@@ -95,6 +78,10 @@ int set_completed_cells(const char** bar, struct bar_settings settings, int coun
 }
 
 int set_current_cell(const char** bar, struct bar_settings settings, int count_completed) {
+    if (count_completed < 0) {
+        return FAIL_STATUS;
+    }
+
     int index = count_completed;
     if (settings.left_border != NULL) {
         index++;
@@ -105,15 +92,18 @@ int set_current_cell(const char** bar, struct bar_settings settings, int count_c
         current_cell = settings.empty;
     }
 
-    int status = SUCCESS_STATUS;
     if (count_completed != settings.bar_len) {
-        status = set_bar_cell(bar, index, current_cell);
+        bar[index] = current_cell;
     }
 
-    return status;
+    return SUCCESS_STATUS;
 }
 
 int set_empty_cells(const char** bar, struct bar_settings settings, int count_completed) {
+    if (count_completed < 0) {
+        return FAIL_STATUS;
+    }
+
     int start_index = count_completed + 1;
     int max_start_bias = 0;
     if (settings.left_border != NULL) {
@@ -131,17 +121,15 @@ int set_empty_cells(const char** bar, struct bar_settings settings, int count_co
     return status;
 }
 
-int set_right_boarder(const char** bar, struct bar_settings settings) {
+void set_right_boarder(const char** bar, struct bar_settings settings) {
     int index = settings.bar_len;
     if (settings.left_border != NULL) {
         index++;
     }
 
-    int status = SUCCESS_STATUS;
     if (settings.right_border != NULL) {
-        status = set_bar_cell(bar, index, settings.right_border);
+        bar[index] = settings.right_border;
     }
-    return status;
 }
 
 const char** build(int completed_percentage, struct bar_settings settings) {
